@@ -1,0 +1,35 @@
+Program Flow (decision tree approach)
+
+-Read Input (file I/O)
+-Create and Store board 
+    -However we represent it - graph, 2D array, etc)
+
+-Helper method for identifying moves
+    -Find clusters of more than 2, looking at adjacent cell colors
+        -‘Flood fill’ using BFS or DFS?
+    -Return a list of all moves containing the relevant data for the output (color, cluster size, row/column of any single square in cluster)
+        -Rows/columns start from bottom left of grid
+    -When there are no moves to be found, end the game
+
+-Create global variable for tracking score
+-Create global variable for tracking moves
+-Helper method for taking moves
+    -Given a board and a specified cluster, return the updated board after taking the move (i.e. enact the game logic)
+    -Every move taken will increment point counter
+    -Also add to global list of taken moves
+ 
+-Tree Search Method
+    -Build decision tree from possible moves using helper method (calling at each state)
+    -Prune as needed with alpha mechanism (no beta since single-player)
+    -Go to a certain depth, specified as a parameter (test to see performance vs. score tradeoff in our code to decide on value)
+    -Return best path(s)
+-Rolling Horizon Approach
+    -Perform the tree build/search in a loop, until game end is reached
+    -Highest score/associated moves should be in global variables
+
+**Modifying for a beam search is more complex, so start with a single-path algorithm first**
+
+-Output to console
+    -Total score (just the counter)
+    -Number of moves (length of move list)
+    -All explicit moves, listed as a sequence of 4 integers (color, size, row, column)        -Simply iterate through move list and print out data
