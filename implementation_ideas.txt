@@ -11,8 +11,6 @@ Program Flow (decision tree approach)
         -Rows/columns start from bottom left of grid
     -When there are no moves to be found, end the game
 
--Create global variable for tracking score
--Create global variable for tracking moves
 -Helper method for taking moves
     -Given a board and a specified cluster, return the updated board after taking the move (i.e. enact the game logic)
     -Every move taken will increment point counter
@@ -32,4 +30,17 @@ Program Flow (decision tree approach)
 -Output to console
     -Total score (just the counter)
     -Number of moves (length of move list)
-    -All explicit moves, listed as a sequence of 4 integers (color, size, row, column)        -Simply iterate through move list and print out data
+    -All explicit moves, listed as a sequence of 4 integers (color, size, row, column
+
+
+Game logic:
+-After a move:
+    -Turn all removed spaces to ‘0’
+    -Iterate column-by-column (from bottom up)
+    -‘0’ represents an empty space - if every entry in a column is 0, perform a copy of every element to the right 1 space to the left
+        -If a column is completely empty, pull everything to the left
+        -Try to build in a way for this work to be avoided at the rightmost end of the table (I.e. we expect the columns on the right to be empty near the end of the game - don’t try to copy those
+            -Maybe use a flag, and if the previous column was empty we know that the next ones have to be as well
+    -After encountering a ‘0,’ if there are any non-zero cells in the same column, move them down to the lowest ‘0’ space
+        -Basically apply gravity, since no empty cells should have non-empty cells above them
+
