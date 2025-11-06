@@ -41,7 +41,12 @@ Helper method for identifying possible moves at given board state
 # Takes in a given board state
 # If a cluster has size >= 2, add it to a list of possible moves
 def find_clusters(board):
-
+    clusters = set()
+    for i in range(r):
+        for j in range(c):
+            adjacent = group_adjacent(grid, r, c, i, j)
+            if len(adjacent) >= 2 and adjacent not in clusters:
+                clusters.add(adjacent)
 
 
 '''
@@ -113,6 +118,7 @@ def group_adjacent(grid, r, c, i, j):
     visited = set()
     adjacent = set()
     adjacency_helper(grid, r, c, i, j, visited, adjacent)
+    return adjacent
 
 '''
 checks each adjacent index for the same color adds it to adjacent set if it. 
