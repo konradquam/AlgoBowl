@@ -44,7 +44,7 @@ def find_clusters(board):
     clusters = set()
     for i in range(r):
         for j in range(c):
-            adjacent = group_adjacent(grid, r, c, i, j)
+            adjacent = group_adjacent(board, r, c, i, j)
             if len(adjacent) >= 2 and adjacent not in clusters:
                 clusters.add(adjacent)
 
@@ -114,31 +114,31 @@ for m in moves:
 '''
 Builds adjacency set of same color, only along rows and columns, not diaganols as specified
 '''
-def group_adjacent(grid, r, c, i, j):
+def group_adjacent(board, r, c, i, j):
     visited = set()
     adjacent = set()
-    adjacency_helper(grid, r, c, i, j, visited, adjacent)
+    adjacency_helper(board, r, c, i, j, visited, adjacent)
     return adjacent
 
 '''
 checks each adjacent index for the same color adds it to adjacent set if it. 
 Also keeps a visited set to not revisit indices.
 '''
-def adjacency_helper(grid, r, c, i, j, visited, adjacent):
+def adjacency_helper(board, r, c, i, j, visited, adjacent):
     visited.add((i, j))
     if 0 <= i-1 < r and 0<= j < c and not (i-1, j) in visited:
-        if grid[i-1, j] == grid[i, j]:
+        if board[i-1, j] == board[i, j]:
             adjacent.add((i-1, j))
-            adjacency_helper(grid, r, c, i-1, j, visited, adjacent)
+            adjacency_helper(board, r, c, i-1, j, visited, adjacent)
     if 0 <= i+1 < r and 0<= j < c and not (i+1, j) in visited:
-        if grid[i+1, j] == grid[i, j]:
+        if board[i+1, j] == board[i, j]:
             adjacent.add((i+1, j))
-            adjacency_helper(grid, r, c, i+1, j, visited, adjacent)
+            adjacency_helper(board, r, c, i+1, j, visited, adjacent)
     if 0 <= i < r and 0<= j-1 < c and not (i, j-1) in visited:
-        if grid[i, j-1] == grid[i, j]:
+        if board[i, j-1] == board[i, j]:
             adjacent.add((i, j-1))
-            adjacency_helper(grid, r, c, i, j-1, visited, adjacent)
+            adjacency_helper(board, r, c, i, j-1, visited, adjacent)
     if 0 <= i < r and 0<= j+1 < c and not (i, j+1) in visited:
-        if grid[i, j+1] == grid[i, j]:
+        if board[i, j+1] == board[i, j]:
             adjacent.add((i, j+1))
-            adjacency_helper(grid, r, c, i, j+1, visited, adjacent)
+            adjacency_helper(board, r, c, i, j+1, visited, adjacent)
