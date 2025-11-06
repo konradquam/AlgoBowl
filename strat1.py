@@ -29,6 +29,7 @@ with open(filename, "r") as file:
             curr_row.append(int(char))
         grid.append(curr_row)
 
+# convert grid to numpy
 grid = np.array(grid)
 
 print(f'{r} {c}')
