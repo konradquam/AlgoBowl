@@ -1,28 +1,78 @@
 import numpy as np
 import sys
 
+'''
+Read file input/Create Board
+'''
 r = None
 c = None
 grid = []
 
-with open("case1.txt", "r") as file:
-    line_num = 0
+if len(sys.argv) < 2:
+    print("Usage: python3 strat1.py <filename>")
+    sys.exit(1)
+
+filename = sys.argv[1]
+
+with open(filename, "r") as file:
+    first_line = file.readline();
+    r, c = map(int, first_line.split());
+
     for line in file:
-        line = line.strip()
-        if line_num == 0:
-            r = int(line[0])
-            c = int(line[2])
-        else:
-            row = []
-            for char in line:
-                row.append(int(char))
-            grid.append(row)
-        line_num += 1
+        cleaned_line = line.strip()
+        curr_row = []
+        for char in cleaned_line:
+            curr_row.append(int(char))
+        grid.append(curr_row)
 
 grid = np.array(grid)
 
 print(f'{r} {c}')
 print(grid)
+
+'''
+Global variables
+'''
+moves = []
+score = 0
+
+'''
+Helper method for identifying possible moves at given board state
+'''
+# Find clusters using adjacent cells
+# If a cluster has size >= 2, add it to a list of possible moves
+
+
+'''
+Helper method for making a move/updating board
+'''
+# Take in a board and a move from our list
+# Remove cluster from board, apply game rules as needed (gravity/left-shifting)
+# Return new board state
+
+'''
+Tree search method
+'''
+# Build decision tree for a given board state
+# Use helper method to generate list of all possible moves
+# Create a child node for every move, and use helper method to get new board state/score increase
+
+'''
+Rolling horizon approach
+'''
+# Loop through board, beginning with starting position
+# In every iteration, build/traverse decision tree to find best path(s) at a certain hard-coded depth
+# Feed best options back into tree search until end state is found (helper method fails to return any possible moves)
+
+'''
+Output to console
+'''
+print(len(moves))
+# All subsequent lines are each individual movement Rocket and Lucky take
+for m in moves:
+    print(m)
+
+
 
 '''
 Builds adjacency set of same color, only along rows and columns, not diaganols as specified
