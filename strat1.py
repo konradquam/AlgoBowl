@@ -74,11 +74,11 @@ Helper method for making a move/updating board
 # Return new board state
 def remove_cluster(board, cluster):
     # Copy board to modify (have to be explicit, since otherwise it's just a reference)
-    modified_board = board.copy()
+    gravity_board = board.copy()
 
     # Remove cluster (set all cells to '0')
     for (i, j) in cluster:
-        modified_board[i, j] = 0
+        gravity_board[i, j] = 0
 
     # Apply gravity to cells (make nonzero cells above '0' cells fall down)
     # Done by iterating through columns from the bottom-up
@@ -86,25 +86,46 @@ def remove_cluster(board, cluster):
         nonzero_cells = []
         for i in range(0, r):
             # If cell is nonzero, add to list
-            if modified_board[i, j] != 0:
-                nonzero_cells.append(modified_board[i, j])
+            if gravity_board[i, j] != 0:
+                nonzero_cells.append(gravity_board[i, j])
 
         # Track row in current column to replace tiles
         current_row = r - 1
         
         # Rebuilding column from the bottom-up
         for cell in reversed(nonzero_cells):
-            modified_board[current_row, j] = cell
+            gravity_board[current_row, j] = cell
             current_row -= 1
 
         # Once all nonzero cells have been placed, fill rest of column with '0'
         for i in range(0, current_row + 1):
-            modified_board[i, j] = 0
+            gravity_board[i, j] = 0
 
     # Apply 'left-shift' for columns
     # WORK IN PROGRESS
+    nonzero_column_indices = []
+    for col in range(0, c):
+        column_empty = False
 
-    return modified_board
+        for row in range(0, r):
+            if gravity_board[row, col] != 0:
+                column_empty = True
+                break;
+
+        if column_empty:
+            nonzero_column_indices.append(col)
+
+    # Create an empty copy of the board
+    shifted_board = np.zeros_like(gravity_board)
+
+    # Populate with the contents of every nonzero column
+    new_col = 0
+    for old_col in nonzero_column_indices:
+        for row in range(0, r):
+            shifted_board[row, new_col] = gravity_board[row, old_col]
+        new_col += 1
+
+    return shifted_board
  
 '''
 Tree search method
@@ -211,17 +232,24 @@ for idx, cl in enumerate(clusters):
 new_board =  None
 # Try removing the first cluster
 if clusters:
-    print("\nRemoving first cluster")
-    new_board = remove_cluster(STARTING_BOARD, clusters[0])
+    print("\nRemoving third cluster (gravity test)")
+    new_board = remove_cluster(STARTING_BOARD, clusters[2])
     print(new_board)
 
 if clusters:
-    print("\nRemoving fifth cluster")
-    new_board = remove_cluster(new_board, clusters[4])
+    print("\nRemoving first cluster (left shift setup)")
+    new_board = remove_cluster(new_board, clusters[0])
     print(new_board)
 
+if clusters:
+    print("\nRemoving fourth cluster (left shift test)")
+    new_board = remove_cluster(new_board, clusters[3])
+    print(new_board)
+    
+'''
 print("\n\nBUG TO FIX - Clusters have to be recalculated after moving, since this just tries to delete the cluster from it's old space (which is already empty)")
 if clusters:
     print("\nRemoving third cluster")
     new_board = remove_cluster(new_board, clusters[2])
     print(new_board)
+'''
