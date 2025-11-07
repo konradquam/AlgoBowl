@@ -1,0 +1,13 @@
+Ideas for optimizing later:
+
+Beam Search:
+-Modify algorithm to take more than one 'best option' upon reaching depth
+
+Dynamic Search Depth:
+-Adaptively choose decision tree depth
+    -Look at initial board size (r and c) to determine a good starting value
+    -Increase depth as board becomes more empty
+
+Better Storage:
+-Change how board is stored to be more efficient
+-Bitmaps/Bitmasks?
