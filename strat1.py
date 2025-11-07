@@ -105,14 +105,14 @@ def remove_cluster(board, cluster):
     # WORK IN PROGRESS
     nonzero_column_indices = []
     for col in range(0, c):
-        column_empty = False
+        column_empty = True
 
         for row in range(0, r):
             if gravity_board[row, col] != 0:
-                column_empty = True
+                column_empty = False
                 break;
 
-        if column_empty:
+        if not column_empty:
             nonzero_column_indices.append(col)
 
     # Create an empty copy of the board
