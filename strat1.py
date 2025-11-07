@@ -8,6 +8,7 @@ Read file input/Create Board
 # r - row count
 # c - column count
 # grid - 2D list of cells, with integers representing cell colors
+# note that 0's represent empy cells
 r = None
 c = None
 grid = []
@@ -48,6 +49,7 @@ def find_clusters(board):
             adjacent = group_adjacent(board, r, c, i, j)
             if len(adjacent) >= 2 and adjacent not in clusters:
                 clusters.add(adjacent)
+    return clusters
 
 
 '''
@@ -118,7 +120,9 @@ Builds adjacency set of same color, only along rows and columns, not diaganols a
 def group_adjacent(board, r, c, i, j):
     visited = set()
     adjacent = set()
-    adjacency_helper(board, r, c, i, j, visited, adjacent)
+    #only find ajacent indices for possible colors 1-8
+    if 1<= board[i, j] <= 8:
+        adjacency_helper(board, r, c, i, j, visited, adjacent)
     return adjacent
 
 '''
