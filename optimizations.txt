@@ -7,7 +7,22 @@ Dynamic Search Depth:
 -Adaptively choose decision tree depth
     -Look at initial board size (r and c) to determine a good starting value
     -Increase depth as board becomes more empty
+-Search at MAX_DEPTH, but only take the first option from that search
+    - searches farther but only takes first result, allowing for better options down the line
 
 Better Storage:
 -Change how board is stored to be more efficient
 -Bitmaps/Bitmasks?
+
+Store Less Data in Main Game Loop:
+- Create a helper function that can take a row, column, and color and get a single cluster: 
+    - This allows us to only store an array of best moves, which we can use to find the cluster. Eliminating the need to store an array of all the clusters.    
+    - Optimizes space > time complexity (probably what we want).
+- Don't create copies of paths and clusters? (Not sure if the recursion will work without them.)
+
+
+Fall Back Option (More of an back up, not really an optimization):
+- Run Verifier on final solution.
+- If verifier marks our solution as invalid:
+    - Either return empty but valid input.
+    - Run a small greedy algorithm to try to get some points. 
