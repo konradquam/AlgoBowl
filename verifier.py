@@ -209,8 +209,13 @@ def verify_solution():
     current_board = STARTING_BOARD.copy()
     total_score_computed = 0
 
+    print("\nOutput score: " + str(total_score))
+    print("Output move count: " + str(num_moves))
+    print("\nMoves in format (color, cluster size, row, column)\n")
+
     # Process each move
-    for move_idx, (color, size, row, col) in enumerate(moves, start=1):
+    for move_id, (color, size, row, col) in enumerate(moves, start=1):
+        print(f"Move {move_id} in output: (" + str(color) + ", " + str(size) + ", " + str(row) + ", " + str(col) + ")")
         # Convert coordinates from 1-indexed bottom-left origin to array indices
         i = r - row
         j = col - 1
