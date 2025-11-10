@@ -254,7 +254,7 @@ Read file input/Create Board
 r = None
 c = None
 STARTING_BOARD = []
-MAX_DEPTH = 2
+MAX_DEPTH = 3
 
 if len(sys.argv) < 2:
     print("Usage: python3 strat1.py <filename>")

@@ -24,7 +24,20 @@ Build a decision tree from the starting board state and simulate the game to a c
 
 ---
 
-## Documentation
+## Command-Line Usage
+
+### python3 strat1.copy.py (input.txt)
+Runs algorithm on provided input file, assuming it is of correct format
+
+### python3 strat1.copy.py (input.txt) > (output.txt)
+Runs algorithm and pipes output into separate file, for use with verifier
+
+### python3 verifier.py (input.txt) (output.txt)
+Runs verification program on given output/input file pair - returns specific error message if a problem is found, or a 'tests passed' message otherwise.
+
+---
+
+## Implementation Documentation
 
 ### `group_adjacent(board, r, c, i, j)`
 Finds all adjacent cells of the same color (no diagonals) starting from position `(i, j)`
