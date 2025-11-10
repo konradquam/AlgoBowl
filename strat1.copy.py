@@ -146,16 +146,9 @@ def determine_score(moves):
 
 # END HELPERS 
 
-'''
-Tree search method
-'''
-# Build decision tree for a given board state
-# Use helper method to generate list of all possible moves
-# Create a child node for every move, and use helper method to get new board state/score increase
-#def build_tree(board, depth, alpha):
 
 '''
-Rolling horizon approach
+Rolling horizon approach - build/rebuild decision tree with find_best_path()
 '''
 # Loop through board, beginning with starting position
 # In every iteration, build/traverse decision tree to find best path(s) at a certain hard-coded depth
@@ -206,23 +199,18 @@ def run_game(board):
 
     return moves, total_score, current_board
 
-# returns (score, path, clusters_used)
 def find_best_path(board, path, clusters_so_far, depth):
     
-    # # TODO: delete TESTING
-    # print(f'Finding best path for board \n{board}, \npath {path}, and depth {depth}')
-
     clusters = find_clusters(board)
     
     # If no moves are found or depth is reached, end recursion
-    if not clusters or depth >= MAX_DEPTH:
+    if len(clusters) == 0 or depth >= MAX_DEPTH:
         return determine_score(path), path, clusters_so_far
 
     # TODO: how are we getting to a depth of 5????? 
 
     #print(f"Depth {depth}: {len(clusters)} clusters: {clusters}")
 
-    # TODO: will this reset the best path and score? 
     current_best_score = -1
     current_best_path = []
     current_best_clusters = []
@@ -254,14 +242,7 @@ def find_best_path(board, path, clusters_so_far, depth):
 
     # return once we search all adjacent paths (clusters)
     return current_best_score, current_best_path, current_best_clusters
-'''
-Helper method to determine points scored from final moves list
-'''
-# In essence, loop through final path and calculate cumulative score
-# (Get points for each move with formula (n-1)^2)
-# Each move has cluster size as second value
 
-# MAIN 
 '''
 Read file input/Create Board
 '''
@@ -296,41 +277,13 @@ with open(filename, "r") as file:
 STARTING_BOARD = np.array(STARTING_BOARD)
 
 
-#print("INPUT:") # TODO: delete
-#print(f'{r} {c}')
-#print(STARTING_BOARD)
 '''
 Output to console
 '''
-
-#print("Before removal:\n", STARTING_BOARD)
-#cluster = {(3, 1), (2, 0), (2, 1), (3, 0)}
-#new_board = remove_cluster(STARTING_BOARD, cluster)
-#print("After removal:\n", new_board)
-
 moves = [] # List of moves in selected path
 score = 0 # Number of points awarded in decision path
 
 (moves, score, clusters_used) = run_game(STARTING_BOARD) # TODO: delete clusters_used
-
-# TODO: determine score is breaking here, but not in the run game function 
-# # TODO: delete TESTING
-# print(f'moves: {moves}')
-
-# TODO: when moves are building in the main game loop, they are being appended together as independent arrays instead of appending as a single array. For example:
-# getting moves: [[(), ()], [(), ()]] when we should be getting [(), (), (), ()]
-
-#score = determine_score(moves)
-
-'''
-print("\nOUTPUT:") # TODO: delete
-print(score)
-print(len(moves))
-#print("color amount row col") # TODO: delete 
-for m in moves:
-    print(m)
-'''
-
 
 # Output that converts coordinates into 1-indexed pairs with origin in the bottom left
 print(score)
