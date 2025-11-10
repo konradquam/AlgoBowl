@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 import sys
 
@@ -81,6 +82,8 @@ def remove_cluster(board, cluster):
     for (i, j) in cluster:
         gravity_board[i, j] = 0
 
+    # print("Removing cluster:", cluster)
+
     # Apply gravity to cells (make nonzero cells above '0' cells fall down)
     # Done by iterating through columns from the bottom-up
     for j in range(0, c):
@@ -128,6 +131,7 @@ def remove_cluster(board, cluster):
 
     return shifted_board
 
+
 def determine_score(moves):
     score = 0
 
@@ -160,20 +164,26 @@ Rolling horizon approach
 # TODO: amounts of removals are incorrect (for example, on case1.txt input, it is outputting that it is removing 3 squares of 1 when it should be removing 4)
 def run_game(board):
     
-    # while there are clusters
-    path = []
-    clusters_used = [] # tracks all of the clusters that we used so that they can be removed from the board
+    total_score = 0
+    moves = []
+    current_board = board.copy()
     while True:
         
         # # TODO: delete TESTING 
         # print(f'Running game with board {board} and path {path}')
 
-        clusters = find_clusters(board)
+        # Get all moves for current board state. If none, game is over, so return current moves/clusters used 
+        clusters = find_clusters(current_board)
         if (len(clusters) == 0):
-            return (moves, clusters_used) # TODO: delete clusters_used
+            break # TODO: delete clusters_used
 
         # search for best path at max depth
-        (best_score, best_path, best_clusters_used) = find_best_path(board, path, clusters_used, 0) # TODO: dump best_score? 
+        best_score, best_path, best_clusters = find_best_path(current_board, [], [], 0)         
+        
+        # If returned path is empty, no more valid moves, so return
+        if not best_path:
+            break
+        # TODO: dump best_score? 
 
         # TODO: only apply first move from search? (see optimizations file)
         # update the board with the new moves
@@ -182,68 +192,68 @@ def run_game(board):
           # cluster = find_cluster(path) # TODO: create a helper function that can take a row, column, and color and get a single cluster
             # board = remove_cluster(board, cluster)
         
-        for cluster in best_clusters_used:
-            board = remove_cluster(board, cluster)
+        # Follow the first move on our 'best path'
+        first_move = best_path[0]
+        first_cluster = best_clusters[0]
 
-        # update the moves array with the new moves
-        moves.extend(best_path)
+        color, cluster_size, row, col = first_move
+
+        current_board = remove_cluster(current_board, first_cluster)
+
+        # Move was taken, so update our lists accordingly
+        moves.append(first_move)
+        total_score = determine_score(moves)
+
+    return moves, total_score, current_board
 
 # returns (score, path, clusters_used)
-def find_best_path(board, path, clusters_used, depth):
+def find_best_path(board, path, clusters_so_far, depth):
     
     # # TODO: delete TESTING
     # print(f'Finding best path for board \n{board}, \npath {path}, and depth {depth}')
 
     clusters = find_clusters(board)
+    
+    # If no moves are found or depth is reached, end recursion
+    if not clusters or depth >= MAX_DEPTH:
+        return determine_score(path), path, clusters_so_far
+
     # TODO: how are we getting to a depth of 5????? 
-    # if we've hit max depth OR we've run out of clusters
-    if (depth >= MAX_DEPTH or len(clusters) == 0):
-        # # TODO: delete TESTING
-        # print(f'moves (path): {path}')
-        score = determine_score(path)
-        return (score, path, clusters_used)
+
+    #print(f"Depth {depth}: {len(clusters)} clusters: {clusters}")
 
     # TODO: will this reset the best path and score? 
     current_best_score = -1
     current_best_path = []
+    current_best_clusters = []
 
     for cluster in clusters:
-        # remove cluster
+        # Before removing cluster, store its move data:
+        cluster_size = len(cluster)
+        row, col = list(cluster)[0]
+        color = int(board[row, col])
+
+        # Generate next board and parameters to recurse
         next_board = remove_cluster(board, cluster)
 
-        # TODO: could we make the recursion work without copying all of the data? 
-        # create copy of clusters, and append next cluster
-        next_clusters_used = []
-        next_clusters_used = clusters_used.copy()
-        next_clusters_used.append(cluster)
+        # Create copy of moves
+        next_path = path + [(color, cluster_size, row, col)]
 
-        # create copy of moves
-        next_path = []
-        next_path = path.copy()
-
-        # append path
-        # (color, amount, row, column)
-        (row, col) = cluster.pop()
-        color = int(board[row][col]) # TODO: ensure this is indexed properly (the top left corner might be messing it up)
-        amount = len(cluster)
-
+        next_clusters = clusters_so_far + [cluster]
         # # TODO: delete TESTING
         # print(f'next path: {(color , amount, row, col)}')
 
-        next_path.append((color , amount, row, col))
-
-        # recursion: find next best path
-        depth += 1
-        (child_score, child_path, child_clusters) = find_best_path(next_board, next_path, next_clusters_used, depth) 
-
+        # Recursion: find next best path
+        child_score, child_path, child_clusters = find_best_path(next_board, next_path, next_clusters, depth+1) 
+    
         # compare paths
-        if (child_score > current_best_score):
+        if(child_score > current_best_score):
             current_best_score = child_score
             current_best_path = child_path
             current_best_clusters = child_clusters
-    
+
     # return once we search all adjacent paths (clusters)
-    return (current_best_score, current_best_path, current_best_clusters)
+    return current_best_score, current_best_path, current_best_clusters
 '''
 Helper method to determine points scored from final moves list
 '''
@@ -285,16 +295,24 @@ with open(filename, "r") as file:
 # convert grid to numpy
 STARTING_BOARD = np.array(STARTING_BOARD)
 
-print("INPUT:") # TODO: delete
-print(f'{r} {c}')
-print(STARTING_BOARD)
 
+#print("INPUT:") # TODO: delete
+#print(f'{r} {c}')
+#print(STARTING_BOARD)
 '''
 Output to console
 '''
+
+#print("Before removal:\n", STARTING_BOARD)
+#cluster = {(3, 1), (2, 0), (2, 1), (3, 0)}
+#new_board = remove_cluster(STARTING_BOARD, cluster)
+#print("After removal:\n", new_board)
+
 moves = [] # List of moves in selected path
 score = 0 # Number of points awarded in decision path
-(moves, clusters_used) = run_game(STARTING_BOARD) # TODO: delete clusters_used
+
+(moves, score, clusters_used) = run_game(STARTING_BOARD) # TODO: delete clusters_used
+
 # TODO: determine score is breaking here, but not in the run game function 
 # # TODO: delete TESTING
 # print(f'moves: {moves}')
@@ -302,20 +320,31 @@ score = 0 # Number of points awarded in decision path
 # TODO: when moves are building in the main game loop, they are being appended together as independent arrays instead of appending as a single array. For example:
 # getting moves: [[(), ()], [(), ()]] when we should be getting [(), (), (), ()]
 
-score = determine_score(moves)
+#score = determine_score(moves)
 
+'''
 print("\nOUTPUT:") # TODO: delete
 print(score)
 print(len(moves))
-print("color amount row col") # TODO: delete 
+#print("color amount row col") # TODO: delete 
 for m in moves:
     print(m)
+'''
+
+
+# Output that converts coordinates into 1-indexed pairs with origin in the bottom left
+print(score)
+print(len(moves))
+for (color, cluster_size, row, col) in moves:
+    converted_row_index = r - row
+    converted_col_index = col + 1
+    print(str(color) + " " + str(cluster_size) + " " + str(converted_row_index) + " " + str(converted_col_index))
+
 
 # TODO: delete
 # print(clusters_used)
 # for c in clusters_used:
 #     print(c)
-
 # moves:
 # 1 4 4 1
 # (color(1-8)) (number of squares removed) (row of any square in the cluster) (column of any square in the cluster)
@@ -324,34 +353,3 @@ for m in moves:
 
 # TODO: append the first element in the cluster (which is a tuple) to the moves array by breaking it up into a row and a column 
 
-
-# # --- TESTING ---
-# clusters = find_clusters(STARTING_BOARD)
-# print(f"Found {len(clusters)} clusters:")
-# for idx, cl in enumerate(clusters):
-#     print(f"  Cluster {idx + 1} (size {len(cl)}): {cl}")
-
-# new_board =  None
-# # Try removing the first cluster
-# if clusters:
-#     print("\nRemoving third cluster (gravity test)")
-#     new_board = remove_cluster(STARTING_BOARD, clusters[2])
-#     print(new_board)
-
-# if clusters:
-#     print("\nRemoving first cluster (left shift setup)")
-#     new_board = remove_cluster(new_board, clusters[0])
-#     print(new_board)
-
-# if clusters:
-#     print("\nRemoving fourth cluster (left shift test)")
-#     new_board = remove_cluster(new_board, clusters[3])
-#     print(new_board)
-    
-# '''
-# print("\n\nBUG TO FIX - Clusters have to be recalculated after moving, since this just tries to delete the cluster from it's old space (which is already empty)")
-# if clusters:
-#     print("\nRemoving third cluster")
-#     new_board = remove_cluster(new_board, clusters[2])
-#     print(new_board)
-# '''
