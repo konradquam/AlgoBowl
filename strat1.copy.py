@@ -254,7 +254,7 @@ Read file input/Create Board
 r = None
 c = None
 STARTING_BOARD = []
-MAX_DEPTH = 4
+MAX_DEPTH = 1
 
 if len(sys.argv) < 2:
     print("Usage: python3 strat1.py <filename>")
@@ -276,6 +276,17 @@ with open(filename, "r") as file:
 # convert grid to numpy
 STARTING_BOARD = np.array(STARTING_BOARD)
 
+# Determine MAX_DEPTH to search based on board size
+board_size = r * c
+
+if(board_size <= 50):
+    MAX_DEPTH = 4
+elif(board_size <= 1000):
+    MAX_DEPTH = 3
+elif(board_size <= 20000):
+    MAX_DEPTH = 2
+elif(board_size <= 100000):
+    MAX_DEPTH = 1
 
 '''
 Output to console
