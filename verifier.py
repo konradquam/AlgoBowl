@@ -224,6 +224,9 @@ def verify_solution():
         if(size == 1):
             print("Illegal move - cluster of size 1 cannot be removed")
             return False
+        elif size < 1:
+            print("Illegal move - cluster of size 0 or smaller cannot be removed")
+            return False
 
         # Check coordinate validity
         if not ((0 <= i < r) and (0 <= j < c)):
