@@ -318,9 +318,9 @@ elif(board_size <= 600):
     MAX_DEPTH = 4
 elif(board_size <= 1000):
     MAX_DEPTH = 3
-elif(board_size <= 20000):
+elif(board_size <= 2000):
     MAX_DEPTH = 2
-elif(board_size <= 100000):
+elif(board_size <= 10000):
     MAX_DEPTH = 1
 
 MAX_DEPTH = 1
