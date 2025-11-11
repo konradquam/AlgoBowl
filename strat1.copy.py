@@ -210,30 +210,44 @@ def find_best_path(board, path, clusters_so_far, depth):
     # TODO: how are we getting to a depth of 5????? 
 
     #print(f"Depth {depth}: {len(clusters)} clusters: {clusters}")
+    BEAM_SIZE = 5
+
+    # Generate a list of all moves and store all relevant information about them
+    candidates = []
+    for cluster in clusters:
+        cluster_size = len(cluster)
+        row, col = list(cluster)[0]
+        color = int(board[row, col])
+
+        move_score = (cluster_size - 1) ** 2
+
+        next_board = remove_cluster(board, cluster)
+
+        candidates.append((move_score, cluster, color, cluster_size, row, col, next_board))
+
+    # Sort candidates based on score, then take the best options (based on beam size)
+    def get_score(candidate):
+        move_score, _, _, _, _, _, _ = candidate
+        return move_score
+
+    candidates.sort(key = get_score, reverse = True)
+
+    # Remove all but the best moves
+    if(len(candidates) > BEAM_SIZE):
+        candidates = candidates[:BEAM_SIZE]
 
     current_best_score = -1
     current_best_path = []
     current_best_clusters = []
 
-    for cluster in clusters:
-        # Before removing cluster, store its move data:
-        cluster_size = len(cluster)
-        row, col = list(cluster)[0]
-        color = int(board[row, col])
-
-        # Generate next board and parameters to recurse
-        next_board = remove_cluster(board, cluster)
-
-        # Create copy of moves
+    # Iterate through best options and find which path to take
+    for move_score, cluster, color, cluster_size, row, col, next_board in candidates:
         next_path = path + [(color, cluster_size, row, col)]
-
         next_clusters = clusters_so_far + [cluster]
-        # # TODO: delete TESTING
-        # print(f'next path: {(color , amount, row, col)}')
 
-        # Recursion: find next best path
-        child_score, child_path, child_clusters = find_best_path(next_board, next_path, next_clusters, depth+1) 
-    
+        # Recurse on path
+        child_score, child_path, child_clusters = find_best_path(next_board, next_path, next_clusters, depth + 1)
+
         # compare paths
         if(child_score > current_best_score):
             current_best_score = child_score
@@ -280,6 +294,10 @@ STARTING_BOARD = np.array(STARTING_BOARD)
 board_size = r * c
 
 if(board_size <= 50):
+    MAX_DEPTH = 6
+elif(board_size <= 300):
+    MAX_DEPTH = 5
+elif(board_size <= 600):
     MAX_DEPTH = 4
 elif(board_size <= 1000):
     MAX_DEPTH = 3
@@ -288,6 +306,10 @@ elif(board_size <= 20000):
 elif(board_size <= 100000):
     MAX_DEPTH = 1
 
+
+print(MAX_DEPTH)
+MAX_DEPTH = 1
+print(MAX_DEPTH)
 '''
 Output to console
 '''
