@@ -323,7 +323,6 @@ elif(board_size <= 2000):
 elif(board_size <= 10000):
     MAX_DEPTH = 1
 
-MAX_DEPTH = 1
 #print(MAX_DEPTH)
 #MAX_DEPTH = 1
 #print(MAX_DEPTH)
