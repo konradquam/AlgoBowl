@@ -71,6 +71,8 @@ def find_clusters(board):
 '''
 Helper method for making a move/updating board
 '''
+
+'''
 # Take in a board state and a cluster to delete
 # Remove cluster from board, apply game rules as needed (gravity/left-shifting)
 # Return new board state
@@ -130,6 +132,47 @@ def remove_cluster(board, cluster):
         new_col += 1
 
     return shifted_board
+'''
+
+import numpy as np
+
+def remove_cluster(board, cluster):
+    # Use global dimensions for consistency
+    global r, c  
+
+    # --- Step 1: Copy board and remove cluster ---
+    gravity_board = board.copy()
+    if cluster:
+        # Convert cluster (set of tuples) to numpy array for indexing
+        cluster_arr = np.array(list(cluster), dtype=int)
+        gravity_board[cluster_arr[:, 0], cluster_arr[:, 1]] = 0
+
+    # --- Step 2: Apply gravity (cells fall down) ---
+    for j in range(c):
+        col = gravity_board[:, j]
+        nonzero = col[col != 0]
+        num_nonzero = len(nonzero)
+        if num_nonzero < r:
+            # Fill from bottom up
+            gravity_board[:, j] = np.concatenate((
+                np.zeros(r - num_nonzero, dtype=board.dtype),
+                nonzero
+            ))
+
+    # --- Step 3: Left-shift (remove empty columns) ---
+    nonempty_cols = np.any(gravity_board != 0, axis=0)
+    shifted_board = gravity_board[:, nonempty_cols]
+
+    # Pad with zeros on the right to keep same width
+    num_empty = c - shifted_board.shape[1]
+    if num_empty > 0:
+        shifted_board = np.hstack((
+            shifted_board,
+            np.zeros((r, num_empty), dtype=board.dtype)
+        ))
+
+    return shifted_board
+
 
 
 def determine_score(moves):
@@ -207,7 +250,14 @@ def find_best_path(board, path, clusters_so_far, depth):
     if len(clusters) == 0 or depth >= MAX_DEPTH:
         return determine_score(path), path, clusters_so_far
 
-    # TODO: how are we getting to a depth of 5????? 
+    if MAX_DEPTH == 1:
+        best_cluster = max(clusters, key=len)  # largest cluster
+        row, col = list(best_cluster)[0]
+        color = int(board[row, col])
+        cluster_size = len(best_cluster)
+        move_score = (cluster_size - 1) ** 2
+        next_board = remove_cluster(board, best_cluster)
+        return move_score, [(color, cluster_size, row, col)], [best_cluster]
 
     #print(f"Depth {depth}: {len(clusters)} clusters: {clusters}")
     BEAM_SIZE = 5
@@ -306,10 +356,10 @@ elif(board_size <= 20000):
 elif(board_size <= 100000):
     MAX_DEPTH = 1
 
-
-print(MAX_DEPTH)
 MAX_DEPTH = 1
-print(MAX_DEPTH)
+#print(MAX_DEPTH)
+#MAX_DEPTH = 1
+#print(MAX_DEPTH)
 '''
 Output to console
 '''
