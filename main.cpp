@@ -55,6 +55,12 @@ inline vector<Cluster> find_clusters(const Board &board) {
     return clusters;
 }
 
+// given a path in path array, needs to find a single cluster 
+inline Cluster find_cluster(Board &board, const Move &single_move) {
+    vector<vector<bool>> visited(R, vector<bool>(C, false));
+    return group_adjacent(board, single_move.row, single_move.col, visited);
+}
+
 // Apply a move to the given board, altering it by reference
 inline void remove_cluster(Board &board, const Cluster &cluster) {
     // turn removed cluster cells to 0
@@ -119,12 +125,11 @@ struct Candidate {
 };
 
 // Recursive beam search (rolling horizon)
-tuple<int, vector<Move>, vector<Cluster>> find_best_path(Board &board, vector<Move> &path,
-    vector<Cluster> &clusters_so_far, int depth)
+tuple<int, vector<Move>> find_best_path(Board &board, vector<Move> &path, int depth)
 {
     auto clusters = find_clusters(board);
     if (clusters.empty() || depth >= MAX_DEPTH)
-        return {determine_score(path), path, clusters_so_far};
+        return {determine_score(path), path};
 
     const int BEAM_SIZE = 5;
     vector<Candidate> candidates;
@@ -151,23 +156,19 @@ tuple<int, vector<Move>, vector<Cluster>> find_best_path(Board &board, vector<Mo
 
     int best_score=-1;
     vector<Move> best_path;
-    vector<Cluster> best_clusters;
 
     for (auto &cand : candidates) {
         path.push_back({cand.color, cand.size, cand.row, cand.col});
-        clusters_so_far.push_back(cand.cluster);
-        auto [child_score, child_path, child_clusters] =
-            find_best_path(cand.next_board, path, clusters_so_far, depth+1);
+        auto [child_score, child_path] =
+            find_best_path(cand.next_board, path, depth+1);
         if (child_score > best_score) {
             best_score = child_score;
             best_path = child_path;
-            best_clusters = child_clusters;
         }
         path.pop_back();
-        clusters_so_far.pop_back();
     }
 
-    return {best_score, best_path, best_clusters};
+    return {best_score, best_path};
 }
 
 // Main Game Function
@@ -182,14 +183,14 @@ tuple<vector<Move>, int, Board> run_game(Board board) {
 	}
 
         vector<Move> path;
-        vector<Cluster> clusters_so_far;
-        auto [best_score, best_path, best_clusters] = find_best_path(board, path, clusters_so_far, 0);
+        auto [best_score, best_path] = find_best_path(board, path, 0);
         if (best_path.empty()) {
 	       	break;
 	}
 
         auto &m = best_path[0];
-        auto &c = best_clusters[0];
+        auto c = find_cluster(board, best_path[0]); 
+
         remove_cluster(board, c);
 
         moves.push_back(m);
