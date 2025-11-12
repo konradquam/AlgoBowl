@@ -244,8 +244,6 @@ int main(int argc, char **argv) {
 	MAX_DEPTH=1;
     }
 
-    MAX_DEPTH = 10;
-
     auto [moves, score, final_board] = run_game(board);
 
     cout << score << "\n" << moves.size() << "\n";
