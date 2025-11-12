@@ -237,6 +237,7 @@ def verify_solution():
         cell_color = current_board[i, j]
         if cell_color != color:
             print("Illegal move - move color doesn't match cell color")
+            print(move_id)
             return False
 
 

@@ -191,10 +191,15 @@ def run_game(board):
 
         color, cluster_size, row, col = first_move
 
-        current_board = remove_cluster(current_board, first_cluster)
+        for cluster in best_clusters:
+            current_board = remove_cluster(current_board, cluster)
+        for move in best_path:
+            moves.append(move)
+
+        #current_board = remove_cluster(current_board, first_cluster)
 
         # Move was taken, so update our lists accordingly
-        moves.append(first_move)
+        #moves.append(first_move)
         total_score = determine_score(moves)
 
     return moves, total_score, current_board
@@ -324,7 +329,7 @@ elif(board_size <= 10000):
     MAX_DEPTH = 1
 
 #print(MAX_DEPTH)
-#MAX_DEPTH = 1
+MAX_DEPTH = 8
 #print(MAX_DEPTH)
 '''
 Output to console
