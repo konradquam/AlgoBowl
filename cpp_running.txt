@@ -1,0 +1,7 @@
+2 commands to run individual C++ file:
+
+g++ -O3 -std=c++17 main.cpp -o algobowl
+
+./algobowl <input_file>
+
+Can pipe to output file if desired ( > output_file) 
