@@ -3,6 +3,7 @@ import numpy as np
 import sys
 import random as rand
 import time
+import statistics
 
 # HELPERS
 '''
@@ -179,12 +180,54 @@ def find_path(board):
         boards.append(board)
     return moves, board
 
-def run_game(board):
-    rand.seed(time.time())
-    path = find_a_path(board)
-    final_score = determine_score(path)
+# def run_game(board):
+#     rand.seed(time.time())
+#     path = find_a_path(board)
+#     final_score = determine_score(path)
 
-    return path, final_score, path
+#     return path, final_score, path
+
+def run_simulated_annealing(board):
+    solutionFound = 0
+    clusters = find_clusters(board)
+    while (solutionFound == 0):
+        decreaseFactor = 0.99
+        stuckCount = 0
+        tempBoard = FindAPath(board) # TODO: create random find path function 
+        sigma = CalculateInitialSigma(tempBoard)
+        score = determine_score(tempBoard)
+        iterations = len(clusters)
+        if score <= 0:
+            solutionFound = 1
+
+        while solutionFound == 0:
+            previousScore = score
+            for i in range (0, iterations):
+                newState = ChooseNewState(tmpSudoku, fixedSudoku, listOfBlocks, sigma)
+                tmpSudoku = newState[0]
+                scoreDiff = newState[1]
+                score += scoreDiff
+                print(score)
+                f.write(str(score) + '\n')
+                if score <= 0:
+                    solutionFound = 1
+                    break
+
+            sigma *= decreaseFactor
+            if score <= 0:
+                solutionFound = 1
+                break
+            if score >= previousScore:
+                stuckCount += 1
+            else:
+                stuckCount = 0
+            if (stuckCount > 80):
+                sigma += 2
+            if(CalculateNumberOfErrors(tmpSudoku)==0):
+                PrintSudoku(tmpSudoku)
+                break
+    return(tmpSudoku)
+
 
 
 '''
@@ -230,7 +273,8 @@ Output to console
 moves = []  # List of moves in selected path
 score = 0  # Number of points awarded in decision path
 
-(moves, score, clusters_used) = run_game(STARTING_BOARD)  # TODO: delete clusters_used
+# (moves, score, clusters_used) = run_game(STARTING_BOARD)  # TODO: delete clusters_used
+moves = run_simulated_annealing(STARTING_BOARD)
 
 # Output that converts coordinates into 1-indexed pairs with origin in the bottom left
 print(score)
