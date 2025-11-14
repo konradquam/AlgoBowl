@@ -3,7 +3,10 @@ import numpy as np
 import sys
 import random as rand
 import time
+import math
 import statistics
+
+from tensorflow.python.ops.numpy_ops.np_random import randint
 
 # HELPERS
 '''
@@ -161,7 +164,7 @@ def determine_score(moves):
 
 # END HELPERS
 
-def find_path(board):
+def find_a_path(board):
     moves = []
     boards = []
     while True:
@@ -176,14 +179,38 @@ def find_path(board):
         color = board[row, col]
         moves.append((color, cluster_size, row, col))
 
-        board = remove_cluster(board, selected_move)
         boards.append(board)
-    return moves, board
+        board = remove_cluster(board, selected_move)
+    return moves, boards
 
-# def run_game(board):
-#     rand.seed(time.time())
-#     path = find_a_path(board)
-#     final_score = determine_score(path)
+def find_alt_path(moves, boards):
+    move_to_change = rand.randint(0, len(moves) - 1)
+    new_moves = moves[:move_to_change]
+    new_boards = boards[:move_to_change]
+    next_moves, next_boards = find_a_path(boards[move_to_change])
+
+    return new_moves + next_moves, new_boards + next_boards
+
+def choose_path(og_path, new_path, sigma):
+    cost = determine_score(new_path) - determine_score(og_path)
+    rho = math.exp(-cost/sigma)
+    if np.random.uniform(1, 0, 1) < rho:
+        return new_path, cost
+    return og_path, 0
+
+def calculate_initial_sigma(INITIAL_BOARD):
+    scores = []
+    for i in range(10):
+        moves, boards = find_a_path(INITIAL_BOARD)
+        score = determine_score(moves)
+        scores.append(score)
+
+    return statistics.pstdev(scores)
+
+def run_game(board):
+    rand.seed(time.time())
+    path = find_a_path(board)
+    final_score = determine_score(path)
 
 #     return path, final_score, path
 
