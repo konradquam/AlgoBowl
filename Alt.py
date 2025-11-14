@@ -4,6 +4,7 @@ import sys
 import random as rand
 import time
 import math
+import statistics
 
 from tensorflow.python.ops.numpy_ops.np_random import randint
 
@@ -197,7 +198,14 @@ def choose_path(og_path, new_path, sigma):
         return new_path, cost
     return og_path, 0
 
-def calculate_sigma():
+def calculate_initial_sigma(INITIAL_BOARD):
+    scores = []
+    for i in range(10):
+        moves, boards = find_a_path(INITIAL_BOARD)
+        score = determine_score(moves)
+        scores.append(score)
+
+    return statistics.pstdev(scores)
 
 def run_game(board):
     rand.seed(time.time())
