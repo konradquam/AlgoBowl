@@ -55,7 +55,7 @@ def find_clusters(board):
             # Skip any cells that have already been visited, meaning it's in another cluster
             # Also skip any empty cells
             if (i, j) in visited or board[i, j] == 0:
-                continue;
+                continue
 
             # Form cluster for current cell if it isn't part of a cluster
             cluster = group_adjacent(board, r, c, i, j)        

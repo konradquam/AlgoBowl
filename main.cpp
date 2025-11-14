@@ -1,5 +1,13 @@
 #include <fstream>
 #include <iostream>
+#include <vector>
+#include <queue>
+#include <tuple>
+#include <cstdint>
+#include <algorithm>
+#include <string>
+#include <utility>
+
 using namespace std;
 
 int R, C;
@@ -131,7 +139,7 @@ tuple<int, vector<Move>> find_best_path(Board &board, vector<Move> &path, int de
     if (clusters.empty() || depth >= MAX_DEPTH)
         return {determine_score(path), path};
 
-    const int BEAM_SIZE = 5;
+    const int BEAM_SIZE = 8;
     vector<Candidate> candidates;
     candidates.reserve(clusters.size());
 
@@ -188,6 +196,14 @@ tuple<vector<Move>, int, Board> run_game(Board board) {
 	       	break;
 	}
 
+        for (int i=0; i < best_path.size(); i++){
+            auto &m = best_path[i];
+            auto c = find_cluster(board, best_path[i]);
+            remove_cluster(board, c);
+            moves.push_back(m);
+            total_score = determine_score(moves);
+        }
+        /*
         auto &m = best_path[0];
         auto c = find_cluster(board, best_path[0]); 
 
@@ -195,6 +211,7 @@ tuple<vector<Move>, int, Board> run_game(Board board) {
 
         moves.push_back(m);
         total_score = determine_score(moves);
+        */
     }
     return {moves, total_score, board};
 }
@@ -242,7 +259,7 @@ int main(int argc, char **argv) {
 	MAX_DEPTH=4;
     }
     else {
-	MAX_DEPTH=1;
+	MAX_DEPTH=3;
     }
 
     auto [moves, score, final_board] = run_game(board);
