@@ -214,33 +214,33 @@ def run_game(board):
 
 #     return path, final_score, path
 
-def run_simulated_annealing(board):
+def run_simulated_annealing(board, total_iterations):
     INITIAL_BOARD = board
     clusters = find_clusters(INITIAL_BOARD)
     initial_path, initial_path_boards = find_a_path(INITIAL_BOARD)
     best_path = initial_path
     best_path_boards = initial_path_boards
     initial_score = determine_score(initial_path)
-    while True:
-        decreaseFactor = 0.99
-        stuckCount = 0
-        iterations = len(clusters)
-        sigma = calculate_initial_sigma(INITIAL_BOARD)
-
-        while True:
-            curr_path = find_alt_path(best_path, best_path_boards)
-            for i in range (0, iterations):
-                new_path, new_path_boards = find_alt_path(best_path, best_path_boards)
-                curr_path, _ = choose_path(best_path, new_path, sigma)
+    decreaseFactor = 0.99
+    stuckCount = 0
+    iterations = len(clusters)
+    sigma = calculate_initial_sigma(INITIAL_BOARD)
+    for _ in range(total_iterations):
+        curr_path = find_alt_path(best_path, best_path_boards)
+        for i in range (0, iterations):
+            new_path, new_path_boards = find_alt_path(best_path, best_path_boards)
+            curr_path, _ = choose_path(best_path, new_path, sigma)
 
 
-            sigma *= decreaseFactor
-            if determine_score(best_path) == determine_score(curr_path):
-                stuckCount += 1
-            else:
-                stuckCount = 0
-            if stuckCount > 80:
-                sigma += 2
+        sigma *= decreaseFactor
+        if determine_score(best_path) == determine_score(curr_path):
+            stuckCount += 1
+        else:
+            stuckCount = 0
+            sigma = calculate_initial_sigma(INITIAL_BOARD)
+        if stuckCount > 80:
+            sigma += 2
+
     return best_path
 
 
@@ -287,9 +287,10 @@ Output to console
 '''
 moves = []  # List of moves in selected path
 score = 0  # Number of points awarded in decision path
+total_iterations = 1000
 
 # (moves, score, clusters_used) = run_game(STARTING_BOARD)  # TODO: delete clusters_used
-moves = run_simulated_annealing(STARTING_BOARD)
+moves = run_simulated_annealing(STARTING_BOARD, total_iterations)
 
 # Output that converts coordinates into 1-indexed pairs with origin in the bottom left
 print(determine_score(moves))
