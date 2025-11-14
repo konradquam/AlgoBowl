@@ -192,7 +192,7 @@ def find_alt_path(moves, boards):
     return new_moves + next_moves, new_boards + next_boards
 
 def choose_path(og_path, new_path, sigma):
-    cost = determine_score(new_path) - determine_score(og_path)
+    cost = determine_score(og_path) - determine_score(new_path)
     rho = math.exp(-cost/sigma)
     if np.random.uniform(1, 0, 1) < rho:
         return new_path, cost
@@ -201,7 +201,7 @@ def choose_path(og_path, new_path, sigma):
 def calculate_initial_sigma(INITIAL_BOARD):
     scores = []
     for i in range(10):
-        moves, boards = find_a_path(INITIAL_BOARD)
+        moves, _ = find_a_path(INITIAL_BOARD)
         score = determine_score(moves)
         scores.append(score)
 
@@ -215,44 +215,34 @@ def run_game(board):
 #     return path, final_score, path
 
 def run_simulated_annealing(board):
+    INITIAL_BOARD = board
     solutionFound = 0
-    clusters = find_clusters(board)
-    while (solutionFound == 0):
+    clusters = find_clusters(INITIAL_BOARD)
+    initial_path, initial_path_boards = find_a_path(INITIAL_BOARD)
+    best_path = initial_path
+    initial_score = determine_score(initial_path)
+    while solutionFound == 0:
         decreaseFactor = 0.99
         stuckCount = 0
-        tempBoard = FindAPath(board) # TODO: create random find path function 
-        sigma = CalculateInitialSigma(tempBoard)
-        score = determine_score(tempBoard)
         iterations = len(clusters)
-        if score <= 0:
-            solutionFound = 1
+        sigma = calculate_initial_sigma(INITIAL_BOARD)
+        temp_path, temp_path_boards = find_alt_path(initial_path, initial_path_boards)
+        score = determine_score(temp_path)
 
         while solutionFound == 0:
             previousScore = score
             for i in range (0, iterations):
-                newState = ChooseNewState(tmpSudoku, fixedSudoku, listOfBlocks, sigma)
-                tmpSudoku = newState[0]
-                scoreDiff = newState[1]
-                score += scoreDiff
-                print(score)
-                f.write(str(score) + '\n')
-                if score <= 0:
-                    solutionFound = 1
-                    break
+
+                chosen_path, cost = choose_path(best_path, temp_path, sigma)
+
 
             sigma *= decreaseFactor
-            if score <= 0:
-                solutionFound = 1
-                break
-            if score >= previousScore:
+            if score <= previousScore:
                 stuckCount += 1
             else:
                 stuckCount = 0
             if (stuckCount > 80):
                 sigma += 2
-            if(CalculateNumberOfErrors(tmpSudoku)==0):
-                PrintSudoku(tmpSudoku)
-                break
     return(tmpSudoku)
 
 
