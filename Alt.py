@@ -160,8 +160,9 @@ def determine_score(moves):
 
 # END HELPERS
 
-def find_a_path(board):
+def find_path(board):
     moves = []
+    boards = []
     while True:
         possible_moves = find_clusters(board)
         if len(possible_moves) == 0:
@@ -175,7 +176,8 @@ def find_a_path(board):
         moves.append((color, cluster_size, row, col))
 
         board = remove_cluster(board, selected_move)
-    return moves
+        boards.append(board)
+    return moves, board
 
 def run_game(board):
     rand.seed(time.time())
