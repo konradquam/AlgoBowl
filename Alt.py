@@ -216,34 +216,32 @@ def run_game(board):
 
 def run_simulated_annealing(board):
     INITIAL_BOARD = board
-    solutionFound = 0
     clusters = find_clusters(INITIAL_BOARD)
     initial_path, initial_path_boards = find_a_path(INITIAL_BOARD)
     best_path = initial_path
+    best_path_boards = initial_path_boards
     initial_score = determine_score(initial_path)
-    while solutionFound == 0:
+    while True:
         decreaseFactor = 0.99
         stuckCount = 0
         iterations = len(clusters)
         sigma = calculate_initial_sigma(INITIAL_BOARD)
-        temp_path, temp_path_boards = find_alt_path(initial_path, initial_path_boards)
-        score = determine_score(temp_path)
 
-        while solutionFound == 0:
-            previousScore = score
+        while True:
+            curr_path = find_alt_path(best_path, best_path_boards)
             for i in range (0, iterations):
-
-                chosen_path, cost = choose_path(best_path, temp_path, sigma)
+                new_path, new_path_boards = find_alt_path(best_path, best_path_boards)
+                curr_path, _ = choose_path(best_path, new_path, sigma)
 
 
             sigma *= decreaseFactor
-            if score <= previousScore:
+            if determine_score(best_path) == determine_score(curr_path):
                 stuckCount += 1
             else:
                 stuckCount = 0
-            if (stuckCount > 80):
+            if stuckCount > 80:
                 sigma += 2
-    return(tmpSudoku)
+    return best_path
 
 
 
@@ -294,7 +292,7 @@ score = 0  # Number of points awarded in decision path
 moves = run_simulated_annealing(STARTING_BOARD)
 
 # Output that converts coordinates into 1-indexed pairs with origin in the bottom left
-print(score)
+print(determine_score(moves))
 print(len(moves))
 for (color, cluster_size, row, col) in moves:
     converted_row_index = r - row
